@@ -1,233 +1,103 @@
-# 📅 Track My Day - Student Productivity Hub
+# Track My Day
 
-A modern, intelligent productivity app designed to help students plan goals, track progress, manage exams, and stay organized—all in one beautiful interface.
+Track My Day is a React + Vite student productivity app for planning goals, parsing timetables from images, tracking exams, and organizing study routines.
 
----
+## Features
 
-## ✨ Features
+- Login flow with localStorage session persistence.
+- Goal Planner chat that uses Groq chat completions with a local fallback response when no API key is configured.
+- Exam Helper that extracts exam rows from uploaded images through Groq vision models, with manual edit and save support.
+- Timetable Upload that extracts class timetable entries from uploaded images and generates SQL insert previews.
+- Smart Calendar and Smart Alerts pages for study planning and exam reminders.
 
-### 🔐 **Smart Login System**
-- Quick authentication with username and Gmail validation
-- User profile management with avatar generation
-- Persistent login using browser localStorage
-- Secure session management
+## Tech Stack
 
-### 🏠 **Interactive Dashboard**
-- Personalized greetings based on time of day (Good morning/afternoon/evening)
-- Dynamic motivational quotes that change daily
-- Quick access to user profile and email
-- Clean, intuitive navigation hub
+- React 19
+- Vite 8
+- React Router 7
+- Tailwind CSS 4
+- Lucide React
 
-### 🎯 **AI-Powered Goal Planner**
-- Chat-based interface with intelligent goal planning assistant
-- Get personalized learning roadmaps from beginner to pro level
-- AI-crafted study plans based on your goals and timeline
-- YouTube channel recommendations for specific topics
-- Weekly study schedules and practical next steps
-- Powered by **Groq LLM API** (Llama 3.3 70B model) for fast, accurate responses
+## Routes
 
-### 📚 **Exam Helper**
-- OCR-powered text recognition using **Tesseract.js**
-- Extract and digitize exam-related content from images
-- Store and manage exam notes efficiently
-- Quick reference during study sessions
+- /login
+- / (home dashboard)
+- /goal-planner
+- /exam-helper
+- /timetable
+- /smart-calendar
+- /smart-alerts
 
-### 📆 **Smart Calendar**
-- Year/month view navigation with holiday markers
-- Track important academic events and breaks
-- Visualize working days and weekends
-- Campus-specific events pre-loaded
-- Plan study schedules around key dates
+## Environment Variables
 
-### 🔔 **Smart Alerts & Notifications**
-- Create and manage exam timetables
-- Set exam reminders with subject, date, and time
-- Daily motivational quotes to stay focused
-- Upcoming exam preview and alerts
-- Never miss an important deadline
+Create a .env.local file in the project root when using AI features:
 
----
+```env
+VITE_GROQ_API_KEY=your_groq_api_key
+VITE_GROQ_MODEL=llama-3.3-70b-versatile
+VITE_GROQ_VISION_MODEL=meta-llama/llama-4-scout-17b-16e-instruct
+```
 
-## 🛠️ Tech Stack
+Notes:
 
-| Technology | Purpose |
-|---|---|
-| **React 19.2** | UI framework |
-| **Vite** | Fast build tool & dev server |
-| **React Router 7** | Client-side routing |
-| **Tailwind CSS 4** | Styling & responsive design |
-| **Lucide React** | Beautiful SVG icons |
-| **Tesseract.js** | OCR for text recognition |
-| **Groq API** | AI-powered goal planning |
+- VITE_GROQ_API_KEY is required for live Groq calls.
+- VITE_GROQ_MODEL is used by Goal Planner.
+- VITE_GROQ_VISION_MODEL is optional; if omitted, built-in fallback vision models are tried.
 
----
+## Getting Started
 
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js (v16+ recommended)
-- npm or yarn package manager
-- Groq API key (for Goal Planner feature)
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/Ancy015/Track-my-day.git
-   cd Track-my-day
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Configure environment variables**
-   Create a `.env.local` file in the root directory:
-   ```
-   VITE_GROQ_MODEL=llama-3.3-70b-versatile
-   VITE_GROQ_API_KEY=your_groq_api_key_here
-   ```
-
-4. **Start development server**
-   ```bash
-   npm run dev
-   ```
-   The app will open at `http://localhost:5173`
-
----
-
-## 📦 Available Scripts
+1. Install dependencies:
 
 ```bash
-# Start development server
+npm install
+```
+
+2. Start the dev server:
+
+```bash
 npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
-
-# Run ESLint for code quality
-npm run lint
 ```
 
----
+3. Open the app at http://localhost:5173.
 
-## 📱 App Structure
+## Available Scripts
 
+```bash
+npm run dev      # Start development server
+npm run build    # Build production bundle
+npm run preview  # Preview production build
+npm run lint     # Run ESLint
 ```
+
+## Project Structure
+
+```text
 src/
-├── pages/
-│   ├── Login.jsx           # User authentication
-│   ├── Home.jsx            # Dashboard with greeting & quotes
-│   ├── AddEdit.jsx         # Goal Planner with AI assistant
-│   ├── ExamHelper.jsx      # OCR text recognition
-│   ├── Calendar.jsx        # Smart calendar view
-│   └── Notifications.jsx   # Exam alerts & reminders
-├── layout/
-│   └── Layout.jsx          # Main app layout with navigation
-├── components/             # Reusable UI components
-├── assets/                 # Images and static files
-├── styles/
-│   └── globals.css         # Global Tailwind styles
-├── App.jsx                 # Main app routing
-└── main.jsx                # React entry point
+  App.jsx
+  main.jsx
+  layout/
+    Layout.jsx
+  pages/
+    AddEdit.jsx
+    Calendar.jsx
+    ExamHelper.jsx
+    Home.jsx
+    Login.jsx
+    Notifications.jsx
+    TimetableUpload.jsx
+  components/
+  styles/
+    globals.css
 ```
 
----
+## Data Storage
 
-## 🎨 User Interface Highlights
+- User session and planner data are stored in browser localStorage.
+- AI requests are sent directly from the client to Groq endpoints.
 
-- **Modern Design**: Clean, minimalist interface with gradient backgrounds
-- **Dark Mode Ready**: Sleek light theme with blue accent colors
-- **Fully Responsive**: Works seamlessly on desktop, tablet, and mobile
-- **Smooth Animations**: Card hover effects and page transitions
-- **Accessible**: Semantic HTML and keyboard navigation
-- **Glassmorphism**: Frosted glass effect with backdrop blur
+## Contributing
 
----
-
-## 🔑 Key Components
-
-### Authentication Flow
-- Gmail validation with format checking
-- Local storage persistence for user sessions
-- Automatic redirect to login for unauthorized access
-
-### Goal Planner AI
-- Real-time chat interface
-- System prompts optimized for learning goals
-- Fallback responses for offline scenarios
-- Structured output: summaries, roadmaps, YouTube recommendations
-
-### Calendar Features
-- Month navigation with previous/next buttons
-- Holiday highlighting with custom labels
-- Count working days vs. weekends
-- Pre-populated academic events
-
-### Notifications System
-- Store exam schedules in localStorage
-- Date and time tracking
-- Daily inspirational quotes
-- Smart preview of upcoming exams
-
----
-
-## 🌟 Tips for Best Experience
-
-1. **Goal Planner**: Be specific about your learning goals and timeline for better recommendations
-2. **Exam Alerts**: Add all your exams early to get advanced reminders
-3. **Calendar**: Check your calendar before planning study sessions
-4. **Login**: Remember to use a valid Gmail address for full features
-
----
-
-## 📝 Notes
-
-- User data is stored locally in your browser (localStorage)
-- No data is sent to external servers except Groq API for AI features
-- Clear browser cache or use incognito mode to start fresh
-
----
-
-## 🤝 Contributing
-
-Found a bug or have a feature idea? Feel free to contribute:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
-
-## 📄 License
-
-This project is open source and available under the MIT License.
-
----
-
-## 👨‍💻 Author
-
-**Ancy015**
-- GitHub: [@Ancy015](https://github.com/Ancy015)
-- Project: [Track My Day Repository](https://github.com/Ancy015/Track-my-day)
-
----
-
-## 🙏 Acknowledgments
-
-- **Groq API** for powerful LLM capabilities
-- **Tesseract.js** for OCR functionality
-- **Tailwind CSS** community for design utilities
-- **React & Vite** teams for amazing developer experience
-
----
-
-**Happy Tracking! 📊✨**
-
-*Track your goals, plan your exams, master your time.*
+1. Create a feature branch.
+2. Make your changes.
+3. Run lint and build checks.
+4. Open a pull request.

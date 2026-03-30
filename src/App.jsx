@@ -7,6 +7,7 @@ import AddEdit from './pages/AddEdit';
 import ExamHelper from './pages/ExamHelper';
 import Calendar from './pages/Calendar';
 import Notifications from './pages/Notifications';
+import TimetableUpload from './pages/TimetableUpload';
 
 const USER_STORAGE_KEY = 'tmd-user';
 
@@ -49,6 +50,7 @@ function App() {
           <Route index element={<Home />} />
           <Route path="goal-planner" element={<AddEdit />} />
           <Route path="exam-helper" element={<ExamHelper />} />
+          <Route path="timetable" element={<TimetableUpload />} />
           <Route path="smart-calendar" element={<Calendar />} />
           <Route path="smart-alerts" element={<Notifications />} />
         </Route>

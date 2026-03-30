@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
-import { LogOut, Sparkles, Bell, Calendar, ClipboardList, LayoutDashboard, BookOpenCheck } from 'lucide-react';
+import { LogOut, Sparkles, Bell, Calendar, ClipboardList, LayoutDashboard, BookOpenCheck, Table2 } from 'lucide-react';
 import { NavLink, Outlet } from 'react-router-dom';
 
 const STORAGE_KEY = 'tmd-exam-timetable';
 const DAILY_NOTIFICATION_KEY = 'tmd-last-exam-alert';
+const TIMETABLE_STORAGE_KEY = 'tmd-ai-timetable';
+const DAILY_TIMETABLE_NOTIFICATION_KEY = 'tmd-last-timetable-alert';
 const DAILY_QUOTES = [
   'Keep going. Your consistency is your superpower.',
   'Small steps today become big success tomorrow.',
@@ -23,6 +25,7 @@ const navItems = [
   { label: 'Dashboard', path: '/', icon: LayoutDashboard },
   { label: 'Goal Planner', path: '/goal-planner', icon: BookOpenCheck },
   { label: 'Exam Helper', path: '/exam-helper', icon: ClipboardList },
+  { label: 'Timetable', path: '/timetable', icon: Table2 },
   { label: 'Smart Calendar', path: '/smart-calendar', icon: Calendar },
   { label: 'Smart Alerts', path: '/smart-alerts', icon: Bell },
 ];
@@ -35,6 +38,48 @@ const normalizeExams = (schedule) => {
       time: String(item?.time || '').trim(),
     }))
     .filter((item) => item.date && item.subject);
+};
+
+const getTodayDayOrder = (timetableFormat, todayDayOrderInput) => {
+  if (timetableFormat === 'weekly') {
+    const day = new Date().getDay();
+    return day === 0 ? 7 : day;
+  }
+
+  const parsed = Number(todayDayOrderInput);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+};
+
+const buildTodayTimetableMessage = (payload) => {
+  const rows = Array.isArray(payload?.rows) ? payload.rows : [];
+  if (!rows.length) return '';
+
+  const dayOrder = getTodayDayOrder(payload?.timetableFormat, payload?.todayDayOrderInput);
+  if (!dayOrder) return '';
+
+  const mainSet = new Set(
+    String(payload?.mainPeriodsInput || '')
+      .split(',')
+      .map((item) => item.trim().toLowerCase())
+      .filter(Boolean),
+  );
+
+  const todayRows = rows
+    .filter((row) => Number(row?.dayOrder) === dayOrder)
+    .sort((a, b) => String(a?.startTime || '').localeCompare(String(b?.startTime || '')))
+    .slice(0, 4);
+
+  if (!todayRows.length) return 'No periods found for today.';
+
+  const compact = todayRows.map((row) => {
+    const subject = String(row?.subject || '').trim();
+    const staffName = String(row?.staffName || '').trim();
+    const label = mainSet.has(subject.toLowerCase()) ? subject : 'Free Period';
+    const who = staffName ? ` - ${staffName}` : '';
+    return `${row.startTime}-${row.endTime} ${label}${who}`;
+  });
+
+  return `Today timetable: ${compact.join(' | ')}`;
 };
 
 const Layout = ({ user, onLogout }) => {
@@ -88,6 +133,42 @@ const Layout = ({ user, onLogout }) => {
 
     pushExamReminder();
     const timer = window.setInterval(pushExamReminder, 60 * 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const pushTimetableReminder = async () => {
+      const now = new Date();
+      if (now.getHours() < 6) return;
+
+      const todayIso = toLocalIsoDate(now);
+      if (localStorage.getItem(DAILY_TIMETABLE_NOTIFICATION_KEY) === todayIso) return;
+
+      const raw = localStorage.getItem(TIMETABLE_STORAGE_KEY);
+      if (!raw) return;
+
+      let payload;
+      try {
+        payload = JSON.parse(raw);
+      } catch {
+        return;
+      }
+
+      const body = buildTodayTimetableMessage(payload);
+      if (!body) return;
+
+      if (!('Notification' in window)) return;
+      if (Notification.permission === 'default') {
+        await Notification.requestPermission();
+      }
+      if (Notification.permission !== 'granted') return;
+
+      new Notification('Track My Day - Today Timetable', { body });
+      localStorage.setItem(DAILY_TIMETABLE_NOTIFICATION_KEY, todayIso);
+    };
+
+    pushTimetableReminder();
+    const timer = window.setInterval(pushTimetableReminder, 60 * 1000);
     return () => window.clearInterval(timer);
   }, []);
 
@@ -175,7 +256,7 @@ const Layout = ({ user, onLogout }) => {
       </div>
 
       <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/95 px-2 py-2 backdrop-blur md:hidden">
-        <div className="mx-auto grid max-w-xl grid-cols-5 gap-1">
+        <div className="mx-auto grid max-w-xl grid-cols-6 gap-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             return (
